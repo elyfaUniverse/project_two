@@ -4,34 +4,31 @@ services:
     ports:
       - '80:80'
     environment:
-      - VITE_API_URL=http://localhost/api
+      - VITE_API_URL=http://server:5000/api
       - NODE_ENV=production
     depends_on:
       server:
         condition: service_healthy
+    networks:
+      - app-network
 
   server:
     build: ./server_two
     ports:
       - '5000:5000'
     environment:
-      - DATABASE_URL=postgres://postgres:Mamba123@db:5432/project_two
+      - DATABASE_URL=postgresql://project_two_postgres:9wTJcwISnbpPAsoz2CCLHR4VDQoAn1oL@dpg-cvpcsc95pdvs73e8ub70-a.frankfurt-postgres.render.com/project_two?sslmode=require
       - JWT_SECRET=84ff2284f28cb3db217a4005286a67d033ae194bdb09722b5cd79b515dc3d0d09d1e76cfaba8a199968ea5b3e0cbba4f87869e66afdd772acc10e56ec984b95b
-      - CORS_ORIGIN=http://localhost 
+      - CORS_ORIGIN=http://localhost
+      - PGSSLMODE=require
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:5000/health']
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - app-network
 
-  db:
-    image: postgres:14
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Mamba123
-      - POSTGRES_DB=project_two
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-
-volumes:
-  pg_data:
+networks:
+  app-network:
+    driver: bridge

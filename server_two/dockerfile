@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
 # Установка curl для healthcheck
-RUN apk add --no-cache curl postgresql-client
+RUN apk add --no-cache curl
 
 WORKDIR /app
 
@@ -13,5 +13,4 @@ RUN npx prisma generate
 
 COPY . .
 
-# Ждем готовности БД и применяем миграции
-CMD ["sh", "-c", "until pg_isready -h db -U postgres; do sleep 2; done && npx prisma migrate deploy && node index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node index.js"]

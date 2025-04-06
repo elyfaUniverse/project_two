@@ -19,6 +19,20 @@ prisma
 	.$connect()
 	.then(() => console.log('Connected to PostgreSQL'))
 	.catch(err => console.error('DB connection error:', err))
+console.log('Using database URL:', process.env.DATABASE_URL)
+
+// Проверка подключения к БД с таймаутом
+const checkDbConnection = async () => {
+	try {
+		await prisma.$connect()
+		console.log('✅ Successfully connected to PostgreSQL')
+	} catch (err) {
+		console.error('❌ DB connection error:', err)
+		process.exit(1)
+	}
+}
+
+checkDbConnection()
 
 // Регистрация
 app.post('/api/register', async (req, res) => {
@@ -72,10 +86,10 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
 	try {
 		const { email, password } = req.body
-		 // Добавьте проверку
-		 if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
+		// Добавьте проверку
+		if (!email) {
+			return res.status(400).json({ error: 'Email is required' })
+		}
 
 		// Поиск пользователя в БД
 		const user = await prisma.user.findUnique({
@@ -85,7 +99,7 @@ app.post('/api/login', async (req, res) => {
 				email: true,
 				password: true,
 				name: true,
-			}
+			},
 		})
 
 		if (!user || !(await argon2.verify(user.password, password))) {
