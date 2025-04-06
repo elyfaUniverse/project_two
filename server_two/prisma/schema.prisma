@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int        @id @default(autoincrement())
+  permissions String?
+  email       String     @unique
+  password    String
+  name        String?
+  favorites   Favorite[] // Связь с избранными фильмами
+}
+
+model Film {
+  id              String     @id // Уникальный идентификатор
+  text            String // Текстовое поле
+  imageUrl        String? // URL изображения (может быть пустым)
+  aggregateRating Float? // Средний рейтинг (может быть пустым)
+  topRanking      Int? // Топовый рейтинг (может быть пустым)
+  voteCount       Int? // Количество голосов (может быть пустым)
+  year            Int? // Год (может быть пустым)
+  canal_1         String? // Канал 1 (может быть пустым)
+  canal_2         String? // Канал 2 (может быть пустым)
+  available       String?
+  button          String? // Кнопка (может быть пустым)
+  about           String? // Описание (может быть пустым)
+  favorites       Favorite[] // Связь с избранными фильмами
+}
+
+model Favorite {
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int // ID пользователя
+  film   Film   @relation(fields: [filmId], references: [id])
+  filmId String // ID фильма
+}
