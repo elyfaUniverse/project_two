@@ -2,8 +2,8 @@ services:
   - type: web
     name: project_two
     runtime: docker
-    dockerfilePath: ./server_two/Dockerfile
+    dockerfilePath: ./server/Dockerfile
     port: 5000
     env: production
     autoDeploy: yes
-    healthCheckPath: /health
+   
