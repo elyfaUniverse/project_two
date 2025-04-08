@@ -49,6 +49,10 @@ const FilmCard = ({ film, toggleFavorite, isAuthenticated }) => {
 						alt={text}
 						style={{ display: 'none' }}
 						onLoad={() => setImageLoaded(true)}
+						onError={e => {
+							e.target.src = '../../../public/placeholder_1.jpg'
+							e.target.style.backgroundColor = '#f0f0f0'
+						}}
 					/>
 					{imageLoaded && (
 						<div
