@@ -17,7 +17,7 @@ services:
     ports:
       - '5000:5000'
     environment:
-      - DATABASE_URL=postgresql://project_two_postgres:9wTJcwISnbpPAsoz2CCLHR4VDQoAn1oL@dpg-cvpcsc95pdvs73e8ub70-a.frankfurt-postgres.render.com/project_two?sslmode=require
+      - DATABASE_URL=postgresql://project_two_admin:PB8T5a1hTMHQcIMfEBlPoQ9MrNNWLGQM@dpg-cvqfe7jipnbc73crlun0-a.frankfurt-postgres.render.com/project_two_db_yhq5
       - JWT_SECRET=84ff2284f28cb3db217a4005286a67d033ae194bdb09722b5cd79b515dc3d0d09d1e76cfaba8a199968ea5b3e0cbba4f87869e66afdd772acc10e56ec984b95b
       - CORS_ORIGIN=http://localhost
       - PGSSLMODE=require

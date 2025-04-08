@@ -5,12 +5,17 @@ RUN apk add --no-cache curl
 
 WORKDIR /app
 
+# Копируем зависимости первыми для кэширования
 COPY package*.json ./
 COPY prisma ./prisma/
 
 RUN npm install
 RUN npx prisma generate
 
+# Копируем остальные файлы
 COPY . .
+
+# Указываем порт
+EXPOSE 5000
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node index.js"]
