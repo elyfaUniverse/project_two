@@ -14,7 +14,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm install --production && \
+# Чистая установка для production
+RUN npm ci --only=production && \
     npx prisma generate
 
 # Копируем остальные файлы
@@ -22,5 +23,9 @@ COPY . .
 
 # Указываем порт
 EXPOSE 5000
+
+# Healthcheck для Render
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node index.js"]
