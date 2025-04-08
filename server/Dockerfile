@@ -1,28 +1,25 @@
 FROM node:18-alpine
 
-# Установка curl для healthcheck
-RUN apk add --no-cache \
-    curl \
-    openssl \
-    python3 \
-    make \
-    g++
+# Установка зависимостей для Prisma
+RUN apk add --no-cache openssl python3 make g++
 
+# Создаем рабочую директорию
 WORKDIR /app
 
-# Генерируем package-lock.json если его нет
-RUN if [ ! -f package-lock.json ]; then npm install; fi
+# Копируем ТОЛЬКО файлы зависимостей сначала
+COPY package.json .
+COPY package-lock.json .
+COPY prisma/schema.prisma ./prisma/
 
-# Устанавливаем зависимости для production
-RUN npm ci --omit=dev && \
+# Устанавливаем зависимости
+RUN npm install && \
     npx prisma generate
 
-# Копируем остальные файлы
+# Копируем остальные файлы проекта
 COPY . .
 
-# Указываем порт
+# Открываем порт
 EXPOSE 5000
 
-
-
+# Запускаем сервер
 CMD ["sh", "-c", "npx prisma migrate deploy && node index.js"]

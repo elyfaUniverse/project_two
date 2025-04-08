@@ -5,5 +5,3 @@ services:
     dockerfilePath: ./server/Dockerfile
     port: 5000
     env: production
-    autoDeploy: yes
-   
