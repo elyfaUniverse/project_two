@@ -7,18 +7,20 @@ const prisma = new PrismaClient()
 const jwt = require('jsonwebtoken')
 const app = express()
 
+const PORT = process.env.PORT || 5000
+
 const corsOptions = {
 	origin: ['https://project-two-two-omega.vercel.app', 'http://localhost:3000'],
 	methods: 'GET,POST,PUT,DELETE',
 	allowedHeaders: 'Content-Type,Authorization',
 	credentials: true,
 }
+
 // Middleware
 app.use(express.json())
 app.use(cors(corsOptions))
-app.options('*', cors(corsOptions))
 
-// Проверка подключения к БД с таймаутом
+// Проверка подключения к БД
 const checkDbConnection = async () => {
 	try {
 		await prisma.$connect()
@@ -29,47 +31,30 @@ const checkDbConnection = async () => {
 	}
 }
 
-// Проверяем соединение с БД
 checkDbConnection().then(() => {
 	console.log('Using database URL:', process.env.DATABASE_URL)
 })
 
-const router = express.Router()
-router.post('/register', async (req, res) => {
-	/* ... */
-})
-app.use('/api', router)
-
+// Health check
 app.get('/health', (req, res) => {
 	res.status(200).json({ status: 'OK' })
 })
 
-app.use((err, req, res, next) => {
-	console.error(err.stack)
-	res.status(500).send('Something broke!')
-})
-
-app.options('*', cors(corsOptions))
 // Регистрация
 app.post('/api/register', async (req, res) => {
 	try {
 		const { email, password, name } = req.body
 
-		// Валидация
 		if (!email || !password) {
 			return res.status(400).json({ error: 'Email and password are required' })
 		}
 
-		// Проверка существования пользователя
 		const existingUser = await prisma.user.findUnique({ where: { email } })
 		if (existingUser) {
 			return res.status(400).json({ error: 'User already exists' })
 		}
 
-		// Хеширование пароля
 		const hash = await argon2.hash(password)
-
-		// Создание пользователя
 		const newUser = await prisma.user.create({
 			data: {
 				email,
@@ -78,10 +63,10 @@ app.post('/api/register', async (req, res) => {
 			},
 		})
 
-		// Генерация токена
 		const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, {
 			expiresIn: '24h',
 		})
+
 		res.status(201).json({
 			message: 'Registration successful',
 			token,
@@ -102,12 +87,11 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
 	try {
 		const { email, password } = req.body
-		// Добавьте проверку
+
 		if (!email) {
 			return res.status(400).json({ error: 'Email is required' })
 		}
 
-		// Поиск пользователя в БД
 		const user = await prisma.user.findUnique({
 			where: { email },
 			select: {
@@ -122,7 +106,6 @@ app.post('/api/login', async (req, res) => {
 			return res.status(401).json({ error: 'Invalid credentials' })
 		}
 
-		// Генерация токена
 		const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
 			expiresIn: '24h',
 		})
@@ -140,6 +123,8 @@ app.post('/api/login', async (req, res) => {
 		res.status(500).json({ error: 'Internal server error' })
 	}
 })
+
+// Получение информации о текущем пользователе
 app.get('/api/me', async (req, res) => {
 	try {
 		const token = req.headers.authorization?.split(' ')[1]
@@ -150,7 +135,7 @@ app.get('/api/me', async (req, res) => {
 			select: {
 				id: true,
 				email: true,
-				name: true, // Важно: выбираем имя
+				name: true,
 			},
 		})
 
@@ -164,14 +149,13 @@ app.get('/api/me', async (req, res) => {
 	}
 })
 
+// Выход пользователя
 app.post('/api/logout', (req, res) => {
-	// Здесь можно добавить логику недействительности токена
-	// (если используете blacklist токенов)
 	res.json({ message: 'Logged out successfully' })
 })
 
+// Получение списка фильмов
 app.get('/api/films', async (req, res) => {
-	console.log('Request headers:', req.headers)
 	try {
 		const films = await prisma.film.findMany({
 			select: {
@@ -191,14 +175,13 @@ app.get('/api/films', async (req, res) => {
 	}
 })
 
-// Добавление/удаление из избранного
+// Работа с избранными фильмами
 app.post('/api/films/:filmId/favorite', async (req, res) => {
 	try {
 		const token = req.headers.authorization?.split(' ')[1]
 		const decoded = jwt.verify(token, process.env.JWT_SECRET)
 		const filmId = req.params.filmId
 
-		// Проверяем, есть ли уже запись в избранном
 		const existingFavorite = await prisma.favorite.findFirst({
 			where: {
 				userId: decoded.userId,
@@ -207,13 +190,11 @@ app.post('/api/films/:filmId/favorite', async (req, res) => {
 		})
 
 		if (existingFavorite) {
-			// Удаляем из избранного
 			await prisma.favorite.delete({
 				where: { id: existingFavorite.id },
 			})
 			return res.json({ isFavorite: false })
 		} else {
-			// Добавляем в избранное
 			await prisma.favorite.create({
 				data: {
 					userId: decoded.userId,
@@ -228,7 +209,6 @@ app.post('/api/films/:filmId/favorite', async (req, res) => {
 	}
 })
 
-// Проверка, есть ли фильм в избранном
 app.get('/api/films/:filmId/favorite', async (req, res) => {
 	try {
 		const token = req.headers.authorization?.split(' ')[1]
@@ -250,7 +230,7 @@ app.get('/api/films/:filmId/favorite', async (req, res) => {
 		res.status(500).json({ error: 'Failed to check favorite status' })
 	}
 })
-// Получение списка избранных фильмов пользователя
+
 app.get('/api/favorites', async (req, res) => {
 	try {
 		const token = req.headers.authorization?.split(' ')[1]
@@ -267,7 +247,7 @@ app.get('/api/favorites', async (req, res) => {
 		res.status(500).json({ error: 'Failed to get favorites' })
 	}
 })
-// Эндпоинт для удаления из избранного (исправленный)
+
 app.delete('/api/favorites/:filmId', async (req, res) => {
 	try {
 		const token = req.headers.authorization?.split(' ')[1]
@@ -276,7 +256,6 @@ app.delete('/api/favorites/:filmId', async (req, res) => {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET)
 		const filmId = req.params.filmId
 
-		// Находим запись для удаления
 		const favorite = await prisma.favorite.findFirst({
 			where: {
 				userId: decoded.userId,
@@ -288,7 +267,6 @@ app.delete('/api/favorites/:filmId', async (req, res) => {
 			return res.status(404).json({ error: 'Favorite not found' })
 		}
 
-		// Удаляем запись
 		await prisma.favorite.delete({
 			where: { id: favorite.id },
 		})
@@ -302,19 +280,18 @@ app.delete('/api/favorites/:filmId', async (req, res) => {
 		res.status(500).json({ error: 'Failed to delete favorite' })
 	}
 })
-// Простейший healthcheck
-// Добавьте в ваш Express app
-app.get('/health', (req, res) => {
-	res.status(200).json({ status: 'OK' })
+
+// Обработчик ошибок
+app.use((err, req, res, next) => {
+	console.error(err.stack)
+	res.status(500).send('Something broke!')
 })
-app.listen(5000, '0.0.0.0', () => {
-	console.log(`Server running on port ${PORT}`)
-})
-// Добавьте обработчик ошибок
+
 process.on('unhandledRejection', err => {
 	console.error('Unhandled rejection:', err)
 })
 
-/*const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
-console.log(`Server is running on http://localhost:${PORT}`)})*/
+// Запуск сервера
+app.listen(PORT, '0.0.0.0', () => {
+	console.log(`Server running on port ${PORT}`)
+})
