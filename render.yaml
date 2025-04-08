@@ -4,3 +4,4 @@ services:
     runtime: docker
     dockerfilePath: ./server_two/Dockerfile
     port: 5000
+    env: production
