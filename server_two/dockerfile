@@ -1,7 +1,12 @@
 FROM node:18-alpine
 
 # Установка curl для healthcheck
-RUN apk add --no-cache curl
+RUN apk add --no-cache \
+    curl \
+    openssl \
+    python3 \
+    make \
+    g++
 
 WORKDIR /app
 
@@ -9,8 +14,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm install
-RUN npx prisma generate
+RUN npm install --production && \
+    npx prisma generate
 
 # Копируем остальные файлы
 COPY . .
