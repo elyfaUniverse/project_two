@@ -6,35 +6,17 @@ const cors = require('cors')
 const prisma = new PrismaClient()
 const jwt = require('jsonwebtoken')
 const app = express()
-app.use(express.json())
-app.use(
-	cors({
-		origin: [
-			'https://project-two-two-omega.vercel.app',
-			'http://localhost:3000',
-		],
-		methods: 'GET,POST,PUT,DELETE',
-		allowedHeaders: 'Content-Type,Authorization',
-		credentials: true,
-	})
-)
-const corsOptions = {
-  origin: [
-    'https://project-two-two-omega.vercel.app',
-    'http://localhost:3000',
-  ],
-  methods: 'GET,POST,PUT,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
-  credentials: true
-}
-app.use(cors(corsOptions))
 
-// Проверка подключения к БД
-prisma
-	.$connect()
-	.then(() => console.log('Connected to PostgreSQL'))
-	.catch(err => console.error('DB connection error:', err))
-console.log('Using database URL:', process.env.DATABASE_URL)
+const corsOptions = {
+	origin: ['https://project-two-two-omega.vercel.app', 'http://localhost:3000'],
+	methods: 'GET,POST,PUT,DELETE',
+	allowedHeaders: 'Content-Type,Authorization',
+	credentials: true,
+}
+// Middleware
+app.use(express.json())
+app.use(cors(corsOptions))
+app.options('*', cors(corsOptions))
 
 // Проверка подключения к БД с таймаутом
 const checkDbConnection = async () => {
@@ -47,9 +29,27 @@ const checkDbConnection = async () => {
 	}
 }
 
-checkDbConnection()
+// Проверяем соединение с БД
+checkDbConnection().then(() => {
+	console.log('Using database URL:', process.env.DATABASE_URL)
+})
 
-app.options('*', cors(corsOptions)) // разрешаем preflight запросы
+const router = express.Router()
+router.post('/register', async (req, res) => {
+	/* ... */
+})
+app.use('/api', router)
+
+app.get('/health', (req, res) => {
+	res.status(200).json({ status: 'OK' })
+})
+
+app.use((err, req, res, next) => {
+	console.error(err.stack)
+	res.status(500).send('Something broke!')
+})
+
+app.options('*', cors(corsOptions))
 // Регистрация
 app.post('/api/register', async (req, res) => {
 	try {
@@ -171,7 +171,7 @@ app.post('/api/logout', (req, res) => {
 })
 
 app.get('/api/films', async (req, res) => {
-	console.log('Request headers:', req.headers); 
+	console.log('Request headers:', req.headers)
 	try {
 		const films = await prisma.film.findMany({
 			select: {
@@ -308,7 +308,7 @@ app.get('/health', (req, res) => {
 	res.status(200).json({ status: 'OK' })
 })
 app.listen(5000, '0.0.0.0', () => {
-	console.log('Server is running on http://0.0.0.0:5000')
+	console.log(`Server running on port ${PORT}`)
 })
 // Добавьте обработчик ошибок
 process.on('unhandledRejection', err => {
