@@ -162,6 +162,7 @@ app.post('/api/logout', (req, res) => {
 })
 
 app.get('/api/films', async (req, res) => {
+	console.log('Request headers:', req.headers); 
 	try {
 		const films = await prisma.film.findMany({
 			select: {
