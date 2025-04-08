@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
 			}
 
 			try {
-				const response = await axiosClient.get('/me')
+				const response = await axiosClient.get('/api/me')
 				setUser(response.data)
 			} catch (err) {
 				console.error('Failed to load user:', err)
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
 	const register = async (email, password, name) => {
 		try {
-			const response = await axiosClient.post('/register', {
+			const response = await axiosClient.post('/api/register', {
 				email,
 				password,
 				name,
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
 	const login = async (email, password) => {
 		try {
-			const response = await axiosClient.post('/login', { email, password })
+			const response = await axiosClient.post('/api/login', { email, password })
 			localStorage.setItem('token', response.data.token)
 			setUser({
 				id: response.data.user.id,

@@ -16,8 +16,8 @@ const Favorites = () => {
 
 			try {
 				const [favoritesRes, filmsRes] = await Promise.all([
-					axiosClient.get('/favorites'),
-					axiosClient.get('/films'),
+					axiosClient.get('/api/favorites'),
+					axiosClient.get('/api/films'),
 				])
 
 				const favoriteFilms = filmsRes.data.filter(film =>
@@ -36,7 +36,7 @@ const Favorites = () => {
 
 	const handleRemoveFavorite = async filmId => {
 		try {
-			await axiosClient.delete(`/favorites/${filmId}`)
+			await axiosClient.delete(`/api/favorites/${filmId}`)
 			setFavorites(prev => prev.filter(film => film.id !== filmId))
 		} catch (err) {
 			console.error('Failed to remove favorite:', err)

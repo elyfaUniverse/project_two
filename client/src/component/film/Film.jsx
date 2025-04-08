@@ -13,7 +13,7 @@ const Film = () => {
 	useEffect(() => {
 		const fetchFilms = async () => {
 			try {
-				const response = await axiosClient.get('/films')
+				const response = await axiosClient.get('/api/films')
 				setFilms(response.data)
 			} catch (err) {
 				setError(err.message)
@@ -29,7 +29,7 @@ const Film = () => {
 			if (!user) return alert('Please login to manage favorites')
 
 			try {
-				const response = await axiosClient.post(`/films/${filmId}/favorite`)
+				const response = await axiosClient.post(`/api/films/${filmId}/favorite`)
 				return response.data.isFavorite
 			} catch (err) {
 				console.error('Favorite toggle error:', err)

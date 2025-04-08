@@ -14,7 +14,7 @@ const FilmCard = ({ film, toggleFavorite, isAuthenticated }) => {
 			if (!isAuthenticated) return
 
 			try {
-				const response = await axiosClient.get(`/films/${id}/favorite`)
+				const response = await axiosClient.get(`/api/films/${id}/favorite`)
 				setIsFavorite(response.data.isFavorite)
 			} catch (err) {
 				console.error('Check favorite error:', err)
@@ -41,7 +41,7 @@ const FilmCard = ({ film, toggleFavorite, isAuthenticated }) => {
 
 	return (
 		<div className={styles.item}>
-			<Link to={`/films/${id}`}>
+			<Link to={`/api/films/${id}`}>
 				<div className={styles.imageContainer}>
 					{!imageLoaded && <div className={styles.imagePlaceholder} />}
 					<img
