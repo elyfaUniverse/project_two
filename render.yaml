@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: project_two
+    runtime: docker
+    dockerfilePath: ./server_two/Dockerfile
+    port: 5000
