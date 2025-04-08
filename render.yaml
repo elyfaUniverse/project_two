@@ -5,3 +5,4 @@ services:
     dockerfilePath: ./server_two/Dockerfile
     port: 5000
     env: production
+    plan: free
