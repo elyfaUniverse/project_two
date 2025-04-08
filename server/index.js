@@ -24,6 +24,7 @@ const corsOptions = {
 app.use(express.json())
 app.use(cors(corsOptions))
 app.options('*', cors(corsOptions))
+app.use('/api', router)
 
 // Проверка подключения к БД
 const checkDbConnection = async () => {
@@ -41,7 +42,7 @@ checkDbConnection().then(() => {
 })
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
 	res.status(200).json({ status: 'OK' })
 })
 
