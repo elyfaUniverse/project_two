@@ -2,6 +2,7 @@ node_modules
 .git
 .env
 Dockerfile
+.gitignore
 docker-compose.yml
 *.md
 dist
