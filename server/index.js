@@ -9,16 +9,14 @@ const app = express()
 app.use(express.json())
 app.use(
 	cors({
-		origin: [
-			'https://project-two-five.vercel.app',
-			'http://localhost',
-			'http://client',
-			'http://localhost:3000',
-		],
+		origin: ['https://project-two-five.vercel.app', 'http://localhost:3000'],
 		methods: 'GET,POST,PUT,DELETE',
 		allowedHeaders: 'Content-Type,Authorization',
+		credentials: true,
 	})
 )
+app.use(cors(corsOptions))
+
 // Проверка подключения к БД
 prisma
 	.$connect()
@@ -39,6 +37,7 @@ const checkDbConnection = async () => {
 
 checkDbConnection()
 
+app.options('*', cors(corsOptions)) // разрешаем preflight запросы
 // Регистрация
 app.post('/api/register', async (req, res) => {
 	try {
