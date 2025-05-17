@@ -8,7 +8,7 @@ services:
     ports:
       - '80:80'
     environment:
-      - VITE_API_URL=/api  # Изменено для работы с проксированием
+      - VITE_API_URL=/api
       - NODE_ENV=production
     networks:
       - app-network
@@ -23,9 +23,9 @@ services:
     ports:
       - '5000:5000'
     environment:
-      - DATABASE_URL=postgresql://postgres.qwspxbbrgizjygzhjgjn:13Elyfamamba13@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true
-      - JWT_SECRET=84ff2284f28cb3db217a4005286a67d033ae194bdb09722b5cd79b515dc3d0d09d1e76cfaba8a199968ea5b3e0cbba4f87869e66afdd772acc10e56ec984b95b
-      - CORS_ORIGIN=https://project-two-five.vercel.app,http://localhost
+      - DATABASE_URL=postgresql://postgres.qwspxbbrgizjygzhjgjn:ВАШ_ПАРОЛЬ@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+      - JWT_SECRET=ваш_секретный_ключ
+      - CORS_ORIGIN=http://localhost,http://localhost:80,https://project-two-five.vercel.app
       - PORT=5000
       - NODE_ENV=production
       - PGSSLMODE=require
